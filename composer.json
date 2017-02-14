@@ -1,0 +1,21 @@
+{
+  "name": "dragintra/datatools",
+  "description": "",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "jochen janssens",
+      "email": "jochen.janssens@dragintra.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "league/csv": "9.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "DataTool\\": "src\\"
+    }
+  }
+}
