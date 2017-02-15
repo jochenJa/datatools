@@ -2,7 +2,7 @@
   "name": "dragintra/datatools",
   "version": "0.1",
   "description": "",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev-master",
   "license": "proprietary",
   "authors": [
     {
