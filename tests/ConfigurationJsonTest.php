@@ -127,6 +127,38 @@ JSON;
 
     /**
      * @test
+     * @dataProvider validationSets
+     */
+    public function buildOnImportValidatorFromConfiguration($expected, $row)
+    {
+        $container = new Container(...array_map(function(\DataTools\Expression\FieldExpression $fld, $offset) {
+            return new Column($fld->field(), $fld->field(), $offset);
+        }, $this->mapping->mappedBy(), array_keys($this->mapping->mappedBy())));
+
+        $validator = new \DataTools\Validator(
+            $container,
+            ...$this->mapping->onImport()
+        );
+
+        $rs = $validator($row);
+        $this->assertSame($expected, boolString($rs));
+    }
+
+    public function validationSets()
+    {
+        return [
+            ['111', [10, 5, 2]],
+            ['100', [10, 10, 21]],
+            ['010', [1, 2, 28]],
+            ['001', [1, 1, 19]],
+            ['110', [10, 11, 100000]],
+            ['101', [10, 10, 10]],
+            ['011', [1, 100, 1]]
+        ];
+    }
+
+    /**
+     * @test
      */
     public function columnsMatchByPositionAndName()
     {
@@ -181,5 +213,6 @@ JSON;
     }
 }
 
+function boolString($bools) { return array_reduce($bools, function($string, $bool) { return $string.($bool?:0); }); }
 
 

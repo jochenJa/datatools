@@ -2,7 +2,9 @@
 
 namespace DataTools\Expression;
 
-final class FieldExpression extends Expr implements ExpressionInterface
+use DataTools\Interfaces\RowColumnInterface;
+
+final class FieldExpression extends Expr implements BindRowColumnInterface
 {
     /**
      * @var string
@@ -32,8 +34,8 @@ final class FieldExpression extends Expr implements ExpressionInterface
         return $this->fieldName . $this->expr;
     }
 
-    public function exprs() : array
+    public function bindContainer(RowColumnInterface $container): Expr
     {
-        return $this->expr->exprs();
+        return new self($this->fieldName, $this->expr->bindContainer($container));
     }
 }

@@ -2,7 +2,9 @@
 
 namespace DataTools\Expression;
 
-final class Expression extends Expr implements ExpressionInterface
+use DataTools\Interfaces\RowColumnInterface;
+
+final class Expression extends Expr implements BindRowColumnInterface
 {
     /**
      * @var Expr[]
@@ -46,8 +48,21 @@ final class Expression extends Expr implements ExpressionInterface
         ));
     }
 
-    public function exprs() : array
+//    public function exprs() : array
+//    {
+//        return $this->expressions;
+//    }
+
+    public function bindContainer(RowColumnInterface $container): Expr
     {
-        return $this->expressions;
+        return new self(...array_map(
+            function(Expr $expr) use ($container) {
+                if($expr instanceof ColumnName) return $expr->at($container);
+                if($expr instanceof Expression) return $expr->bindContainer($container);
+
+                return $expr;
+            },
+            $this->expressions
+        ));
     }
 }

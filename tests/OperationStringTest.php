@@ -3,7 +3,7 @@
 use DataTools\Exceptions\ColumnNotFoundException;
 use DataTools\Expression\
 {
-    ColumnName, Compiler, Constant, DiffOperator, Expr, Expression, LogicExpression, LogicOperator, MultiOperator, Product, Substitutor, Sum, Column, SumOperator
+    ColumnName, Compiler, Constant, DiffOperator, Expression, LogicExpression, LogicOperator, MultiOperator, Product, Substitutor, Sum, Column, SumOperator
 };
 use DataTools\Interfaces\RowColumnInterface;
 
@@ -118,13 +118,14 @@ class OperationStringTest extends PHPUnit_Framework_TestCase
             implode_recursive(' ', $expr = $sums->order($expr))
         );
 
+        $expr = (new Expression(...$expr))->bindContainer($container);
+
         $this->assertSame(
-            "((Column(4) ((Column(3) Constant(-1) Product) Column(2) Sum) NegateConstant(20) Constant(0.010000) Product) (Column(1) Constant(-1) Product) Column(0) Sum)",
-            implode_recursive(' ', $expr = bindContainer($expr, $container))
+            "(((Column(4) ((Column(3) Constant(-1) Product) Column(2) Sum) NegateConstant(20) Constant(0.010000) Product) (Column(1) Constant(-1) Product) Column(0) Sum))",
+            implode_recursive(' ', $expr)
         );
 
-        $calc = new Expression(...$expr);
-        $this->assertEquals($expected, $this->process($container, $col, $calc)[0]);
+        $this->assertEquals($expected, $this->process($container, $col, $expr)[0]);
     }/**
      * @test
      */
@@ -155,12 +156,7 @@ class OperationStringTest extends PHPUnit_Framework_TestCase
             implode_recursive(' ',  $exprs = (new Compiler([], [], [new LogicOperator()]))->compile($exprs))
         );
 
-        $expr = new LogicExpression(
-            ...bindContainer(
-                $compiler->order($exprs),
-                $container
-            )
-        );
+        $expr = (new LogicExpression(...$compiler->order($exprs)))->bindContainer($container);
 
         $this->assertTrue($this->process($container, $col, $expr)[0]);
     }
@@ -182,28 +178,28 @@ class OperationStringTest extends PHPUnit_Framework_TestCase
         $container = new Row(array_flip(str_split('ABCDE')));
 
         $this->assertSame(
-            'Column(0)',
-            implode(bindContainer([new ColumnName('A')], $container))
+            '(Column(0))',
+            (string)(new Expression(new ColumnName('A')))->bindContainer($container)
         );
 
         $this->assertSame(
-            'Column(4)',
-            implode(bindContainer([new ColumnName('E')], $container))
+            '(Column(4))',
+            (string)(new Expression(new ColumnName('E')))->bindContainer($container)
         );
 
         $this->assertSame(
-            'Column(4)Column(2)',
-            implode(bindContainer([new ColumnName('E'), new ColumnName('C')], $container))
+            '(Column(4) Column(2))',
+            (string)(new Expression(new ColumnName('E'), new ColumnName('C')))->bindContainer($container)
         );
 
         $this->assertSame(
-            'Product',
-            implode(bindContainer([new Product()], $container))
+            '(Product)',
+            (string)(new Expression(new Product()))->bindContainer($container)
         );
 
         $this->assertSame(
-            '(Product Column(4) Column(2))Column(0)',
-            implode(bindContainer([new Expression(new Product(), new ColumnName('E'), new ColumnName('C')),new ColumnName('A')], $container))
+            '((Product Column(4) Column(2)) Column(0))',
+            (string)(new Expression(new Expression(new Product(), new ColumnName('E'), new ColumnName('C')),new ColumnName('A')))->bindContainer($container)
         );
     }
 
@@ -216,12 +212,8 @@ class OperationStringTest extends PHPUnit_Framework_TestCase
         $container = new Row(array_flip(str_split('ABCDE')));
         $compiler = Compiler::build();
 
-        $expr = new Expression(
-            ...bindContainer(
-                $compiler->order($compiler->compile("[A]-[B]-20%([C]-[D])*[E]")),
-                $container
-            )
-        );
+        $expr = (new Expression(...$compiler->order($compiler->compile("[A]-[B]-20%([C]-[D])*[E]"))))
+            ->bindContainer($container);
 
         $this->assertEquals(
             $col[0] - $col[1] - (0.2 * ($col[2] - $col[3]) * $col[4]),
@@ -480,19 +472,6 @@ function implode_recursive($glue, $multi)
         (array)$multi
     ));
 };
-
-function bindContainer($exprs, $container)
-{
-    return array_map(
-        function(Expr $expr) use ($container) {
-            if($expr instanceof ColumnName) return $expr->at($container);
-            if($expr instanceof Expression) return new Expression(...bindContainer($expr->exprs(), $container));
-
-            return $expr;
-        },
-        $exprs
-    );
-}
 
 class Row implements RowColumnInterface
 {

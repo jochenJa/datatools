@@ -8,6 +8,7 @@ use DataTools\Expression\FieldExpression;
 use DataTools\Expression\LogicExpression;
 use DataTools\Interfaces\ConfigureMappingInterface;
 use DataTools\Interfaces\ConfigureValidationInterface;
+use DataTools\Interfaces\RowColumnInterface;
 
 class Configuration implements ConfigureMappingInterface, ConfigureValidationInterface
 {
@@ -79,7 +80,7 @@ class Configuration implements ConfigureMappingInterface, ConfigureValidationInt
     {
         return array_reduce(
             $keyAndValue,
-            function($container, $keyAndValue) { return array_merge($container, $keyAndValue); },
+            function($container, $keyAndValue) { return array_merge($container, (array)$keyAndValue); },
             []
         );
     }

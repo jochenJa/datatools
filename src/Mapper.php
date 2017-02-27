@@ -25,12 +25,7 @@ final class Mapper
     {
         $this->container = $container;
         $this->mappedBy = array_map(
-            function(FieldExpression $expr) {
-                return new FieldExpression(
-                    $expr->field(),
-                    new Expression(...$this->bindContainer($expr->exprs()))
-                );
-            },
+            function(FieldExpression $expr) { return $expr->bindContainer($this->container); },
             $mappedBy
         );
     }
