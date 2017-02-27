@@ -51,17 +51,4 @@ final class Mapper
     {
         return $this->map($row);
     }
-
-    public function bindContainer($exprs)
-    {
-        return array_map(
-            function(Expr $expr) {
-                if($expr instanceof ColumnName) return $expr->at($this->container);
-                if($expr instanceof Expression) return new Expression(...$this->bindContainer($expr->exprs()));
-
-                return $expr;
-            },
-            $exprs
-        );
-    }
 }

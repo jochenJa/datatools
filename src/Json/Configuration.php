@@ -9,6 +9,7 @@ use DataTools\Expression\LogicExpression;
 use DataTools\Interfaces\ConfigureMappingInterface;
 use DataTools\Interfaces\ConfigureValidationInterface;
 use DataTools\Interfaces\RowColumnInterface;
+use DataTools\SimpleContainer;
 
 class Configuration implements ConfigureMappingInterface, ConfigureValidationInterface
 {
@@ -107,5 +108,10 @@ class Configuration implements ConfigureMappingInterface, ConfigureValidationInt
             function(string $expr) { return new LogicExpression($this->compiler->expression($expr)); },
             $this->path(self::VALID, self::BETWEEN_SUPPLIERS)
         );
+    }
+
+    public function validationMap(): RowColumnInterface
+    {
+        return new SimpleContainer(array_keys($this->path(self::MAPPING, self::TO)));
     }
 }

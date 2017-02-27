@@ -131,12 +131,8 @@ JSON;
      */
     public function buildOnImportValidatorFromConfiguration($expected, $row)
     {
-        $container = new Container(...array_map(function(\DataTools\Expression\FieldExpression $fld, $offset) {
-            return new Column($fld->field(), $fld->field(), $offset);
-        }, $this->mapping->mappedBy(), array_keys($this->mapping->mappedBy())));
-
         $validator = new \DataTools\Validator(
-            $container,
+            $this->mapping->validationMap(),
             ...$this->mapping->onImport()
         );
 
