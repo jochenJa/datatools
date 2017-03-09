@@ -4,8 +4,9 @@ namespace DataTools;
 
 use DataTools\Exceptions\ColumnNotFoundException;
 use DataTools\Exceptions\PositionAdjustedException;
+use DataTools\Interfaces\ValidateHeaderInterface;
 
-final class Calibrator
+final class Calibrator implements ValidateHeaderInterface
 {
     /**
      * @var Column[]
@@ -21,7 +22,7 @@ final class Calibrator
         $this->columns = $columns;
     }
 
-    public function calibrate($header)
+    public function calibrate($header) : array
     {
         $errors = $warnings = [];
 

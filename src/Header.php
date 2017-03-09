@@ -2,6 +2,8 @@
 
 namespace DataTools;
 
+use DataTools\Interfaces\ColumnCreatorInterface;
+use DataTools\Interfaces\ValidateHeaderInterface;
 use League\Csv\Reader;
 
 final class Header
@@ -25,7 +27,18 @@ final class Header
         return $header->lookup($reader);
     }
 
-    public function __construct(Calibrator $calibrator, $untilRow = 20)
+    public static function guess(Reader $reader, ColumnCreatorInterface $columnCreator)
+    {
+        $finder = $reader->newReader();
+        $finder->setLimit(20);
+        $rowCount = array_reduce($finder->fetchAll(function($row) { return count($row); }), function($highest, $count) { return $count > $highest ? $count : $highest; });
+
+        $header = new self(new Guessed($rowCount, $columnCreator));
+
+        return $header->lookup($reader);
+    }
+
+    public function __construct(ValidateHeaderInterface $calibrator, $untilRow = 20)
     {
         $this->calibrator = $calibrator;
         $this->untilRow = $untilRow;
@@ -55,7 +68,10 @@ final class Header
         return $this->calibratedColumns;
     }
 
+
     private function log($offset, ...$info) { $this->log[$offset] = $info; }
 
     public function skip() { return $this->headerAt + 1; }
+
+    public function at() { return $this->headerAt; }
 }

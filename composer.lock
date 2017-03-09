@@ -4,34 +4,34 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "88a28017e113550688bec78ef693f733",
+    "content-hash": "e8e3aeabfc697811af22ab124a45eb9d",
     "packages": [
         {
             "name": "league/csv",
-            "version": "dev-master",
+            "version": "8.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/csv.git",
-                "reference": "ef1cb2a0186783f333ed0fd5ad0ded519fcff833"
+                "reference": "43fd8b022815a0758d85e925dd92a43fe0d41bb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/csv/zipball/ef1cb2a0186783f333ed0fd5ad0ded519fcff833",
-                "reference": "ef1cb2a0186783f333ed0fd5ad0ded519fcff833",
+                "url": "https://api.github.com/repos/thephpleague/csv/zipball/43fd8b022815a0758d85e925dd92a43fe0d41bb4",
+                "reference": "43fd8b022815a0758d85e925dd92a43fe0d41bb4",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=7.0"
+                "php": ">=5.5.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^1.9",
-                "phpunit/phpunit": "^5.2"
+                "phpunit/phpunit": "^4.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "9.x-dev"
+                    "dev-master": "8.2-dev"
                 }
             },
             "autoload": {
@@ -61,7 +61,7 @@
                 "read",
                 "write"
             ],
-            "time": "2017-01-31T16:51:04+00:00"
+            "time": "2017-02-23T08:25:03+00:00"
         }
     ],
     "packages-dev": [
@@ -1376,9 +1376,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "league/csv": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
