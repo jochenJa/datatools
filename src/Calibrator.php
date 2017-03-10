@@ -4,14 +4,18 @@ namespace DataTools;
 
 use DataTools\Exceptions\ColumnNotFoundException;
 use DataTools\Exceptions\PositionAdjustedException;
-use DataTools\Interfaces\ValidateHeaderInterface;
+use DataTools\Interfaces\CalibrateHeaderInterface;
 
-final class Calibrator implements ValidateHeaderInterface
+final class Calibrator implements CalibrateHeaderInterface
 {
     /**
      * @var Column[]
      */
     private $columns;
+    private $errors;
+    private $warnings;
+    private $calibratedWithIndex = null;
+    private $calibrated = [];
 
     /**
      * Calibrator constructor.
@@ -22,13 +26,13 @@ final class Calibrator implements ValidateHeaderInterface
         $this->columns = $columns;
     }
 
-    public function calibrate($header) : array
+    public function calibrate($header, $index)
     {
-        $errors = $warnings = [];
+        $this->init($index);
 
-        return [
-            array_filter(array_map(
-                function (Column $col) use ($header, &$errors, &$warnings)
+        $this->calibrated = array_filter(
+            array_map(
+                function (Column $col) use ($header)
                 {
                     try
                     {
@@ -37,25 +41,43 @@ final class Calibrator implements ValidateHeaderInterface
                         return $col;
                     } catch (ColumnNotFoundException $e)
                     {
-                        $errors[] = $e;
+                        $this->errors[] = $e;
 
                         return null;
 
                     } catch (PositionAdjustedException $e)
                     {
-                        $warnings[] = $e;
+                        $this->warnings[] = $e;
 
                         return $e->column;
                     }
                 },
-                $this->columns)),
-            $errors,
-            $warnings
-        ];
+                $this->columns)
+        );
     }
 
-    public function __invoke($header)
+    public function errors($index): array
     {
-        return $this->calibrate($header);
+        if($this->calibratedWithIndex !== $index) throw new \Exception(sprintf("Didn't calibrate for index [%s] but for [%s]", $index, $this->calibratedWithIndex));
+
+        return $this->errors;
+    }
+
+    public function warnings($index): array
+    {
+        if($this->calibratedWithIndex !== $index) throw new \Exception(sprintf("Didn't calibrate for index [%s] but for [%s]", $index, $this->calibratedWithIndex));
+
+        return $this->warnings;
+    }
+
+    private function init($index)
+    {
+        $this->calibratedWithIndex = $index;
+        $this->errors = $this->warnings = $this->calibrated = [];
+    }
+
+    public function columns(): array
+    {
+        return $this->calibrated;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace DataTools;
 
+use DataTools\Interfaces\CalibrateHeaderInterface;
 use DataTools\Interfaces\ColumnCreatorInterface;
+use DataTools\Interfaces\GuessHeaderInterface;
 use DataTools\Interfaces\ValidateHeaderInterface;
 use League\Csv\Reader;
 
@@ -22,52 +24,78 @@ final class Header
 
     public static function lookupByColumns(Reader $reader, Column ...$columns)
     {
-        $header = new self(new Calibrator(...$columns));
-
-        return $header->lookup($reader);
+        return (new self())->calibrate($reader, new Calibrator(...$columns));
     }
 
-    public static function guess(Reader $reader, ColumnCreatorInterface $columnCreator)
+    public static function guessed(Reader $reader)
     {
-        $finder = $reader->newReader();
-        $finder->setLimit(20);
-        $rowCount = array_reduce($finder->fetchAll(function($row) { return count($row); }), function($highest, $count) { return $count > $highest ? $count : $highest; });
-
-        $header = new self(new Guessed($rowCount, $columnCreator));
-
-        return $header->lookup($reader);
+        return (new self())->guess($reader, new Guessed());
     }
 
-    public function __construct(ValidateHeaderInterface $calibrator, $untilRow = 20)
+    public function __construct($untilRow = 20)
     {
-        $this->calibrator = $calibrator;
         $this->untilRow = $untilRow;
     }
 
-    public function lookup(Reader $reader)
+    private function init(Reader $reader)
     {
+        $this->headerAt = null;
         $finder = $reader->newReader();
         $finder->setLimit($this->untilRow);
-        $finder->each(function($row, $offset) {
-            list($calibrated, $err, $warn) = $this->calibrator->calibrate($row);
 
-            if(count($err)) {
-                $this->log($offset, implode('|', $row), $warn, $err);
+        return $finder;
+    }
+
+    public function calibrate(Reader $reader, CalibrateHeaderInterface $calibrator)
+    {
+        $finder = $this->init($reader);
+        $finder->each(function($row, $offset) use ($calibrator) {
+            $calibrator->calibrate($row, $offset);
+
+            if(count($calibrator->errors($offset))) {
+                $this->log(
+                    $offset,
+                    implode('|', $row),
+                    $calibrator->warnings($offset),
+                    $calibrator->errors($offset)
+                );
 
                 return true;
             }
 
-            $this->calibratedColumns = $calibrated;
             $this->headerAt = $offset;
 
             return false;
         });
 
-        if(empty($this->calibratedColumns)) throw new \Exception('No header found :');
+        if(! isset($this->headerAt)) throw new \Exception('No header found :');
 
-        return $this->calibratedColumns;
+        return $this->calibratedColumns = $calibrator->columns();
     }
 
+    public function guess(Reader $reader, GuessHeaderInterface $guessor)
+    {
+        $weights = $this->init($reader)->fetchAll([$guessor, 'weight']);
+
+        list($weight, $this->headerAt) = array_reduce(
+            $this->array_concat(
+                $weights,
+                array_keys($weights)
+            ),
+            function($highest, $weight) { return $highest[0] >= $weight[0] && $highest[1] < $weight[1] ? $highest : $weight; },
+            [0,0]
+        );
+
+        return $this->calibratedColumns = $guessor->columns($reader->fetchOne($this->headerAt));
+    }
+
+    private function array_concat()
+    {
+        return array_map(
+            function() { return func_get_args(); },
+            ...func_get_args()
+        );
+    }
 
     private function log($offset, ...$info) { $this->log[$offset] = $info; }
 

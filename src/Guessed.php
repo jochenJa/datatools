@@ -5,62 +5,40 @@ namespace DataTools;
 use DataTools\Exceptions\ColumnNotFoundException;
 use DataTools\Exceptions\PositionAdjustedException;
 use DataTools\Interfaces\ColumnCreatorInterface;
+use DataTools\Interfaces\GuessHeaderInterface;
 use DataTools\Interfaces\ValidateHeaderInterface;
 use League\Csv\Reader;
 
-final class Guessed implements ValidateHeaderInterface
+final class Guessed implements GuessHeaderInterface
 {
-    private $columnCreator;
-    /**
-     * @var
-     */
-    private $rowCount;
-
-    public static function byHighestColumnCount(Reader $reader, ColumnCreatorInterface $creator)
+    public function weight($header, $index) : int
     {
-        $finder = $reader->newReader();
-        $finder->setLimit(20);
+        $rowCount = (string)count($header);
 
-        $rowCount = array_reduce(
-            $finder->fetchAll(function($row) { return count($row); }),
-            function($highest, $count) { return $count > $highest ? $count : $highest; },
-            0
-        );
-
-        return new self( $rowCount, $creator);
+        return (int)($rowCount. str_pad(count(array_filter($header, [$this, 'validHeaderField'])), strlen($rowCount)));
     }
 
-    /**
-     * Guessed constructor.
-     * @param ColumnCreatorInterface $creator
-     */
-    public function __construct($rowCount, ColumnCreatorInterface $creator)
+    public function normalize($field): string
     {
-        $this->columnCreator = $creator;
-        $this->rowCount = $rowCount;
+        return str_replace([' ', '.', "'", ','],['_', '','', '_'], mb_strtolower($field));
     }
 
-    public function calibrate($header) : array
+    private function validHeaderField($field) : bool
     {
-        if(count($header) != $this->rowCount)
-            return [[], [sprintf('Invalid column count %d', count($header))], []];
+        return ! (empty($field) || is_numeric($field) || ! preg_match('/[a-z]/i', $field));
+    }
 
-        foreach($header as $index => $field) if(empty($field) || is_numeric($field) || ! preg_match('/[a-z]/i', $field))
-            return [[], [sprintf('Invalid header field %s at %d', $field, $index)], []];
-
-        return [
-            array_map(
-                function($field, $index) {
-                    return $this->columnCreator->create(
-                        $this->columnCreator->normalize($field),
-                        $field,
-                        $index
-                    );
-                },
-                $header,
-                array_keys($header)
-            ),
-            [],[]
-        ];
+    function columns($header): array
+    {
+        return array_filter(array_map(
+            function($field, $index) {
+                return $this->validHeaderField($field)
+                    ? new Column($this->normalize($field), $field, $index)
+                    : null
+                ;
+            },
+            $header,
+            array_keys($header)
+        ));
     }
 }
