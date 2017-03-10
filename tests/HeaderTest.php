@@ -80,7 +80,7 @@ CSV
             ],
             [
                 2,
-                file_get_contents('test.csv'),
+                file_get_contents(is_file('test.csv') ? 'test.csv' : 'tests/test.csv'),
                 'sql[Sql, 0]|merk[Merk, 1]|model[Model, 2]|wagenomschrijving[Wagenomschrijving, 3]|voertuigcode[Voertuigcode, 4]|brandstof[Brandstof, 5]|looptijd[Looptijd, 6]|jaar_km[Jaar km, 7]|carrosserievorm[Carrosserievorm, 8]|deuren[Deuren, 10]|fisk_pk[Fisk. PK, 11]|kw[KW, 12]|cyl_inh[Cyl. Inh., 13]|co2_gr/km[CO2 gr/km, 14]|co2_bijdrage[CO2 bijdrage, 15]|fisk_aftrek[Fisk. Aftrek., 16]|verbruik_l/100km[Verbruik l/100km, 17]|brandstofprijs[Brandstofprijs, 18]|leaseprijs[Leaseprijs, 19]|catalogusprijs[Catalogusprijs, 20]',
                 '211|210|2120|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|215|215|215|215|215|215|215|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216|216',
             ]

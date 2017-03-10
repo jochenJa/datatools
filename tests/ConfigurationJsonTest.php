@@ -159,6 +159,7 @@ JSON;
     public function columnsMatchByPositionAndName()
     {
         $columns = $this->calibrate(
+            1,
             ['A', 'B', 'C'],
             new Column('X','A', 0),
             new Column('Y','B', 1),
@@ -174,13 +175,14 @@ JSON;
     public function columnMatchByNameOrAliasNotByPosition()
     {
         $columns = $this->calibrate(
+            1,
             ['A', 'B', 'C'],
             new Column('X','A', 2),
             new Column('Y','B', 4),
             new Column('Z','C', 1)
-        );
+        )->columns();
 
-        $this->assertSame("X[A, 0]Y[B, 1]Z[C, 2]", implode(reset($columns)));
+        $this->assertSame("X[A, 0]Y[B, 1]Z[C, 2]", implode($columns));
     }
 
     /**
@@ -188,7 +190,8 @@ JSON;
      */
     public function calibrationReturnsErrorsAndWarnings()
     {
-        list($columns, $error, $warning) = $rs = $this->calibrate(
+        $calibrated = $this->calibrate(
+            1,
             ['A', 'B', 'C'],
             new Column('X','A', 4),
             new Column('Y','E', 1),
@@ -196,16 +199,17 @@ JSON;
             new Column('X','D', 10)
         );
 
-        $this->assertCount(2, $columns, implode($columns));
-        $this->assertCount(2, $error);
-        $this->assertCount(1, $warning);
+        $this->assertCount(2, $calibrated->columns(), implode($calibrated->columns()));
+        $this->assertCount(2, $calibrated->errors(1));
+        $this->assertCount(1, $calibrated->warnings(1));
     }
 
-    private function calibrate($header, Column ...$columns)
+    private function calibrate($index, $header, Column ...$columns)
     {
         $calibrator = new Calibrator(...$columns);
+        $calibrator->calibrate($header, $index);
 
-        return $calibrator($header);
+        return $calibrator;
     }
 }
 
