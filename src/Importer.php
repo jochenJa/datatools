@@ -8,6 +8,7 @@ use League\Csv\Reader;
 class Importer
 {
     private $mapping;
+    private $columns;
 
     /**
      * Importer constructor.
@@ -15,17 +16,20 @@ class Importer
      */
     public function __construct(ConfigureMappingInterface $mapping)
     {
-        $this->header = new Header(new Calibrator(...$mapping->columns()));
-        $this->mapping = $mapping->mappedBy();
+        $this->mapping = $mapping;
     }
 
     public function build(Reader $reader) : \Iterator
     {
+        $header = new Header();
         $mapper = new Mapper(
-            new Container(...$this->header->lookup($reader)),
-            ...$this->mapping
+            new Container(...$header->calibrate(
+                $reader,
+                new Calibrator(...$this->mapping->columns()))
+            ),
+            ...$this->mapping->mappedBy()
         );
-        $reader->setOffset($this->header->skip());
+        $reader->setOffset($header->skip());
 
         return $reader->fetch($mapper);
     }
