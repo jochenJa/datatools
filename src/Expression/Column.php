@@ -5,15 +5,15 @@ namespace DataTools\Expression;
 final class Column extends Expr
 {
     private $index;
-    private $fromRow;
+    private $fetch;
 
-    public function __construct($index, callable $fromRow)
+    public function __construct($index, callable $fetch)
     {
         $this->index = $index;
-        $this->fromRow = $fromRow;
+        $this->fetch = $fetch;
     }
 
-    protected function expand() : array { return [call_user_func($this->fromRow, $this->index)]; }
+    protected function expand() : array { return [call_user_func($this->fetch)]; }
 
     function __toString()
     {

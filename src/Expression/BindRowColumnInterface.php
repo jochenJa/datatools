@@ -2,9 +2,9 @@
 
 namespace DataTools\Expression;
 
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 interface BindRowColumnInterface
 {
-    public function bindContainer(RowColumnInterface $container) : Expr;
+    public function bindContainer(ContainerInterface $container) : Expr;
 }

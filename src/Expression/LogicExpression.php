@@ -2,7 +2,7 @@
 
 namespace DataTools\Expression;
 
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 final class LogicExpression extends Expr implements BindRowColumnInterface
 {
@@ -31,7 +31,7 @@ final class LogicExpression extends Expr implements BindRowColumnInterface
         return (string)$this->expression;
     }
 
-    public function bindContainer(RowColumnInterface $container): Expr
+    public function bindContainer(ContainerInterface $container): Expr
     {
        $withContainer = new self();
        $withContainer->expression = $this->expression->bindContainer($container);

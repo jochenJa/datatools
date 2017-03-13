@@ -6,22 +6,22 @@ use DataTools\Expression\ColumnName;
 use DataTools\Expression\Expr;
 use DataTools\Expression\Expression;
 use DataTools\Expression\FieldExpression;
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 final class Mapper
 {
     /**
-     * @var RowColumnInterface
+     * @var ContainerInterface
      */
     private $container;
     private $mappedBy;
 
     /**
      * Mapper constructor.
-     * @param RowColumnInterface $container
+     * @param ContainerInterface $container
      * @param FieldExpression[] $mappedBy
      */
-    public function __construct(RowColumnInterface $container, FieldExpression ...$mappedBy)
+    public function __construct(ContainerInterface $container, FieldExpression ...$mappedBy)
     {
         $this->container = $container;
         $this->mappedBy = array_map(

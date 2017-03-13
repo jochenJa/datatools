@@ -2,7 +2,7 @@
 
 namespace DataTools\Expression;
 
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 final class ColumnName extends Expr
 {
@@ -20,14 +20,9 @@ final class ColumnName extends Expr
         $this->name = $name;
     }
 
-    public function at(RowColumnInterface $container) : Column
+    public function at(ContainerInterface $container) : Column
     {
-        $index = $container->column($this->name);
-
-        return new Column(
-            $index,
-            function(int $index) use ($container) { return $container->at($index); }
-        );
+        return $container->link($this->name);
     }
 
     public function expand() : array { throw new \Exception('Column name should be replaced by index.'); }

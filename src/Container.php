@@ -3,9 +3,10 @@
 namespace DataTools;
 
 use DataTools\Exceptions\CalibratedColumnNotFoundException;
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Expression\Column as Link;
+use DataTools\Interfaces\ContainerInterface;
 
-class Container implements RowColumnInterface
+class Container implements ContainerInterface
 {
     private $indices = [];
     private $row = null;
@@ -30,21 +31,18 @@ class Container implements RowColumnInterface
 
     /**
      * @param string $columnName
-     * @return int
      * @throws CalibratedColumnNotFoundException
      */
-    public function column(string $columnName) : int
+    public function link(string $columnName) : Link
     {
         if(! isset($this->columns[$columnName])) throw new CalibratedColumnNotFoundException($columnName, $this->columns);
 
-        $this->indices[] = $this->columns[$columnName];
+        $this->indices[] = $index = $this->columns[$columnName];
 
-        return $this->columns[$columnName];
-    }
-
-    public function at(int $index)
-    {
-        return trim($this->row[$index]);
+        return new Link(
+            $index,
+            function() use ($index) { return trim($this->row[$index]); }
+        );
     }
 
     public function validate($row) : bool

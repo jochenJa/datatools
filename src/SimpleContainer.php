@@ -2,9 +2,10 @@
 
 namespace DataTools;
 
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
+use DataTools\Expression\Column;
 
-class SimpleContainer implements RowColumnInterface
+class SimpleContainer implements ContainerInterface
 {
     private $indexMap;
     private $row;
@@ -16,12 +17,12 @@ class SimpleContainer implements RowColumnInterface
        $this->count = count($this->indexMap);
     }
 
-    public function column(string $name) : int
+    public function link(string $name) : Column
     {
         if(($index = array_search($name, $this->indexMap)) === false)
             throw new \Exception(sprintf('Key [%s] not found in [%s]', $name, implode(', ', $this->indexMap)));
 
-        return $index;
+        return new Column($index, function() use ($index) { return $this->at($index); });
     }
 
     public function at(int $index) { return trim($this->row[$index]); }

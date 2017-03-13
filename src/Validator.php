@@ -3,12 +3,12 @@
 namespace DataTools;
 
 use DataTools\Expression\LogicExpression;
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 final class Validator
 {
     /**
-     * @var RowColumnInterface
+     * @var ContainerInterface
      */
     private $container;
     /**
@@ -18,10 +18,10 @@ final class Validator
 
     /**
      * Mapper constructor.
-     * @param RowColumnInterface $container
+     * @param ContainerInterface $container
      * @param LogicExpression[] $rules
      */
-    public function __construct(RowColumnInterface $container, LogicExpression ...$rules)
+    public function __construct(ContainerInterface $container, LogicExpression ...$rules)
     {
         $this->container = $container;
         $this->rules = array_map(

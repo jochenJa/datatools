@@ -5,7 +5,7 @@ use DataTools\Expression\
 {
     ColumnName, Compiler, Constant, DiffOperator, Expression, LogicExpression, LogicOperator, MultiOperator, Product, Substitutor, Sum, Column, SumOperator
 };
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 class OperationStringTest extends PHPUnit_Framework_TestCase
 {
@@ -452,7 +452,7 @@ class OperationStringTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    private function process(RowColumnInterface $container, $row, $expression)
+    private function process(Row $container, $row, $expression)
     {
         if(! $container->validate($row)) throw new \Exception('Row doesnt contain all required indices.');
         $container->setRow($row);
@@ -473,7 +473,7 @@ function implode_recursive($glue, $multi)
     ));
 };
 
-class Row implements RowColumnInterface
+class Row implements ContainerInterface
 {
     private $indices = [];
     private $row = null;
@@ -490,9 +490,7 @@ class Row implements RowColumnInterface
 
     public function columnAt(string $columnName) : Column
     {
-        $index = $this->column($columnName);
-
-        return new Column($index, function($index) { return $this->row[$index]; });
+        return $this->link($columnName);
     }
 
     public function at(int $index)
@@ -510,13 +508,13 @@ class Row implements RowColumnInterface
         return count(array_diff($this->indices, array_keys($row))) === 0;
     }
 
-    public function column(string $columnName) : int
+    public function link(string $columnName) : Column
     {
         if(! isset($this->columns[$columnName])) throw new ColumnNotFoundException($columnName, $this->columns);
 
-        $this->indices[] = $this->columns[$columnName];
+        $this->indices[] = $index = $this->columns[$columnName];
 
-        return $this->columns[$columnName];
+        return new Column($index, function() use ($index) { return $this->row[$index]; });
     }
 }
 

@@ -8,7 +8,7 @@ use DataTools\Expression\FieldExpression;
 use DataTools\Expression\LogicExpression;
 use DataTools\Interfaces\ConfigureMappingInterface;
 use DataTools\Interfaces\ConfigureValidationInterface;
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 use DataTools\SimpleContainer;
 
 class Configuration implements ConfigureMappingInterface, ConfigureValidationInterface
@@ -110,7 +110,7 @@ class Configuration implements ConfigureMappingInterface, ConfigureValidationInt
         );
     }
 
-    public function validationMap(): RowColumnInterface
+    public function validationMap(): ContainerInterface
     {
         return new SimpleContainer(array_keys($this->path(self::MAPPING, self::TO)));
     }

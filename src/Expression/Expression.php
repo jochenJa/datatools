@@ -2,7 +2,7 @@
 
 namespace DataTools\Expression;
 
-use DataTools\Interfaces\RowColumnInterface;
+use DataTools\Interfaces\ContainerInterface;
 
 final class Expression extends Expr implements BindRowColumnInterface
 {
@@ -53,7 +53,7 @@ final class Expression extends Expr implements BindRowColumnInterface
 //        return $this->expressions;
 //    }
 
-    public function bindContainer(RowColumnInterface $container): Expr
+    public function bindContainer(ContainerInterface $container): Expr
     {
         return new self(...array_map(
             function(Expr $expr) use ($container) {
