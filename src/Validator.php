@@ -32,9 +32,7 @@ final class Validator
 
     public function validate($row)
     {
-        if(! $this->container->validate($row)) throw new \Exception('Row isnt complete.');
-
-        $this->container->setRow($row);
+        if(! $this->container->workOn($row)) throw new \Exception('Row isnt complete.');
 
         return array_map(
             function(LogicExpression $expression) { return $expression()[0]; },

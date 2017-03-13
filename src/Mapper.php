@@ -32,9 +32,7 @@ final class Mapper
 
     public function map($row)
     {
-        if(! $this->container->validate($row)) throw new \Exception('Row isnt complete.');
-
-        $this->container->setRow($row);
+        if(! $this->container->workOn($row)) throw new \Exception('Row isnt complete.');
 
         return array_reduce(
             $this->mappedBy,

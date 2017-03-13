@@ -27,5 +27,11 @@ class SimpleContainer implements ContainerInterface
 
     public function at(int $index) { return trim($this->row[$index]); }
     public function validate($row) : bool { return count($row) === $this->count; }
-    public function setRow($row) { $this->row = $row; }
+    public function workOn(array $row) : bool
+    {
+        if(! $this->validate($row)) return false;
+        $this->row = $row;
+
+        return true;
+    }
 }

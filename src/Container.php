@@ -50,8 +50,10 @@ class Container implements ContainerInterface
         return (count(array_diff($this->indices, array_keys($row))) === 0);
     }
 
-    public function setRow($row)
+    public function workOn(array $row) :bool
     {
         $this->row = $row;
+
+        return $this->validate($this->row);
     }
 }

@@ -454,8 +454,7 @@ class OperationStringTest extends PHPUnit_Framework_TestCase
 
     private function process(Row $container, $row, $expression)
     {
-        if(! $container->validate($row)) throw new \Exception('Row doesnt contain all required indices.');
-        $container->setRow($row);
+        if(! $container->workOn($row)) throw new \Exception('Row doesnt contain all required indices.');
 
         return $expression();
     }
@@ -498,9 +497,12 @@ class Row implements ContainerInterface
         return $this->row[$index];
     }
 
-    public function setRow($row)
+    public function workOn(array $row) : bool
     {
+        if(! $this->validate($row)) return false;
         $this->row = &$row;
+
+        return true;
     }
 
     public function validate($row) : bool
