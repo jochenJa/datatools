@@ -67,7 +67,7 @@ class ImporterTest extends PHPUnit_Framework_TestCase
     }
 }
 JSON;
-        return new \DataTools\Json\Configuration($json, Compiler::build(
+        return \DataTools\Json\Configuration::fromJSON($json, Compiler::build(
             new \DataTools\Expression\Substitutor(
                 '/jato/i',
                 function() { return new \DataTools\Expression\Method(function($eurotax) { return 1; }, 'eurotax'); }

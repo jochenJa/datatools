@@ -24,12 +24,17 @@ class Configuration implements ConfigureMappingInterface, ConfigureValidationInt
     private $cfg;
     private $compiler;
 
-    public function __construct($configuration_json, Compiler $compiler)
+    public static function fromJSON($configuration_json, Compiler $compiler)
     {
         if(! ($cfg = json_decode($configuration_json, true))) {
             throw new \Exception('invalid configuration : json_decode failed.');
         };
 
+        return new self($cfg, $compiler);
+    }
+
+    public function __construct(array $cfg, Compiler $compiler)
+    {
         $this->cfg = $cfg;
         $this->compiler = $compiler;
     }

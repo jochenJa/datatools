@@ -17,7 +17,7 @@ class ConfigurationJsonTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-       $this->mapping = new Configuration($this->configuration(), Compiler::build());
+       $this->mapping = Configuration::fromJSON($this->configuration(), Compiler::build());
     }
 
     public function configuration()
